@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+#
+# Vane on Render — privacy-focused AI answering engine
+#
+# Deploy: https://render.com/deploy?repo=https://github.com/ItzCrazyKns/Vane
+#
+# A single Docker image bundles Vane (Next.js) + SearXNG (localhost:8080).
+# SQLite and uploads live on a persistent disk at /home/vane/data.
+#
+# DATA_DIR is the app ROOT (/home/vane), not the disk mount. Vane derives its
+# paths from it: DB at $DATA_DIR/data/db.sqlite, config at $DATA_DIR/data/config.json,
+# uploads at $DATA_DIR/data/uploads — all of which resolve onto the disk mounted
+# at /home/vane/data. Migrations are read from $DATA_DIR/drizzle (baked into the
+# image). Setting DATA_DIR=/home/vane/data double-nests these paths and breaks
+# both the DB open and the migration lookup on first boot.
+
+previews:
+  generation: off
+
+projects:
+  - name: vane
+    environments:
+      - name: production
+        services:
+          - type: web
+            name: vane
+            runtime: docker
+            plan: standard
+            region: oregon
+            dockerfilePath: ./Dockerfile
+            dockerContext: .
+            healthCheckPath: /
+            disk:
+              name: vane-data
+              mountPath: /home/vane/data
+              sizeGB: 1
+            envVars:
+              - key: NODE_ENV
+                value: production
+              - key: DATA_DIR
+                value: /home/vane
+              - key: PORT
+                value: "3000"
