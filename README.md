@@ -1,274 +1,321 @@
-# Vane 🔍
+# Vane on Render
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/ItzCrazyKns/Vane?style=social)](https://github.com/ItzCrazyKns/Vane/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/ItzCrazyKns/Vane?style=social)](https://github.com/ItzCrazyKns/Vane/network/members)
-[![GitHub watchers](https://img.shields.io/github/watchers/ItzCrazyKns/Vane?style=social)](https://github.com/ItzCrazyKns/Vane/watchers)
-[![Docker Pulls](https://img.shields.io/docker/pulls/itzcrazykns1337/vane?color=blue)](https://hub.docker.com/r/itzcrazykns1337/vane)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ItzCrazyKns/Vane/blob/master/LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/ItzCrazyKns/Vane?color=green)](https://github.com/ItzCrazyKns/Vane/commits/master)
-[![Discord](https://dcbadge.limes.pink/api/server/26aArMy8tT?style=flat)](https://discord.gg/26aArMy8tT)
-
-Vane is a **privacy-focused AI answering engine** that runs entirely on your own hardware. It combines knowledge from the vast internet with support for **local LLMs** (Ollama) and cloud providers (OpenAI, Claude, Groq), delivering accurate answers with **cited sources** while keeping your searches completely private.
-
-## Deploy on Render
+> Self-hosted AI answering engine with cited web search, bundled SearXNG, and SQLite on a persistent disk.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=vane)
 
-One-click template: Docker web service, bundled SearXNG, and a persistent disk for SQLite and uploads. First deploy takes ~15–25 minutes.
+Deploy [Vane](https://github.com/ItzCrazyKns/Vane) on Render as one Docker web service. The template builds from source in this repo: Next.js, Playwright, and SearXNG run in the same container. Search history, uploads, and provider settings persist on a Render disk at `/home/vane/data`. You configure LLM API keys in Vane's setup screen after the first deploy, not in the Blueprint Apply step.
 
-Full template docs: **[docs/deploy-on-render.md](docs/deploy-on-render.md)**
-
-![preview](.assets/vane-screenshot.png)
-
-Want to know more about its architecture and how it works? You can read it [here](https://github.com/ItzCrazyKns/Vane/tree/master/docs/architecture/README.md).
-
-## ✨ Features
-
-🤖 **Support for all major AI providers** - Use local LLMs through Ollama or connect to OpenAI, Anthropic Claude, Google Gemini, Groq, and more. Mix and match models based on your needs.
-
-⚡ **Smart search modes** - Choose Speed Mode when you need quick answers, Balanced Mode for everyday searches, or Quality Mode for deep research.
-
-🧭 **Pick your sources** - Search the web, discussions, or academic papers. More sources and integrations are in progress.
-
-🧩 **Widgets** - Helpful UI cards that show up when relevant, like weather, calculations, stock prices, and other quick lookups.
-
-🔍 **Web search powered by SearxNG** - Access multiple search engines while keeping your identity private. Support for Tavily and Exa coming soon for even better results.
-
-📷 **Image and video search** - Find visual content alongside text results. Search isn't limited to just articles anymore.
-
-📄 **File uploads** - Upload documents and ask questions about them. PDFs, text files, images - Vane understands them all.
-
-🌐 **Search specific domains** - Limit your search to specific websites when you know where to look. Perfect for technical documentation or research papers.
-
-💡 **Smart suggestions** - Get intelligent search suggestions as you type, helping you formulate better queries.
-
-📚 **Discover** - Browse interesting articles and trending content throughout the day. Stay informed without even searching.
-
-🕒 **Search history** - Every search is saved locally so you can revisit your discoveries anytime. Your research is never lost.
-
-✨ **More coming soon** - We're actively developing new features based on community feedback. Join our Discord to help shape Vane's future!
-
-## Sponsors
-
-Vane's development is powered by the generous support of our sponsors. Their contributions help keep this project free, open-source, and accessible to everyone.
-
-<div align="center">
-  
-  
-<a href="https://www.warp.dev/perplexica">
-  <img alt="Warp Terminal" src=".assets/sponsers/warp.png" width="100%">
-</a>
-
-### **✨ [Try Warp - The AI-Powered Terminal →](https://www.warp.dev/vane)**
-
-Warp is revolutionizing development workflows with AI-powered features, modern UX, and blazing-fast performance. Used by developers at top companies worldwide.
-
-</div>
+![Vane search UI on Render](./assets/hero.png)
 
 ---
 
-We'd also like to thank the following partners for their generous support:
+## Table of contents
 
-<table>
-  <tr>
-    <td width="100" align="center">
-      <a href="https://dashboard.exa.ai" target="_blank">
-        <img src=".assets/sponsers/exa.png" alt="Exa" width="80" height="80" style="border-radius: .75rem;" />
-      </a>
-    </td>
-    <td>
-      <a href="https://dashboard.exa.ai">Exa</a> • The Perfect Web Search API for LLMs - web search, crawling, deep research, and answer APIs
-    </td>
-  </tr>
-</table>
+- [Why deploy Vane on Render](#why-deploy-vane-on-render)
+- [Use cases](#use-cases)
+- [What gets deployed](#what-gets-deployed)
+- [Quickstart](#quickstart)
+- [Configuration](#configuration)
+- [Cost breakdown](#cost-breakdown)
+- [Customization](#customization)
+- [Operations](#operations)
+- [Upgrading](#upgrading)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [Security](#security)
+- [Caveats and limitations](#caveats-and-limitations)
+- [Credits and license](#credits-and-license)
 
-## Installation
+## Why deploy Vane on Render
 
-There are mainly 2 ways of installing Vane - With Docker, Without Docker. Using Docker is highly recommended.
+- **Bundled SearXNG in one service** — Vane talks to SearXNG on `localhost:8080` inside the container; you do not provision a separate search engine.
+- **Persistent disk for SQLite** — Chat history, uploads, and setup-screen configuration survive redeploys at `/home/vane/data`.
+- **Standard plan by default** — Playwright and SearXNG exceed Starter RAM; the Blueprint uses the **Standard** web plan (2 GB).
+- **HTTPS on `*.onrender.com`** — Render terminates TLS; you add a custom domain in the Dashboard when you are ready.
 
-### Getting Started with Docker (Recommended)
+## Use cases
 
-Vane can be easily run using Docker. Simply run the following command:
+- **Private research assistant** with cited answers and file Q&A for a team or lab.
+- **Self-hosted alternative to hosted AI search** without running Docker Compose on a laptop.
+- **Multi-provider LLM testing** (OpenAI, Anthropic, Groq, Gemini, OpenAI-compatible endpoints) from one UI.
+- **Domain-restricted search** for documentation sites, papers, or known-good sources.
+- **Time-boxed demo** on a Render URL before you commit to long-term self-hosting.
 
-```bash
-docker run -d -p 3000:3000 -v vane-data:/home/vane/data --name vane itzcrazykns1337/vane:latest
+## What gets deployed
+
+```mermaid
+flowchart LR
+  user["Browser"] --> web["vane web service"]
+  subgraph container["Docker container"]
+    web --> next["Next.js :3000"]
+    next --> searx["SearXNG :8080"]
+    next --> disk[/"vane-data disk\n/home/vane/data"/]
+  end
+  next --> llm["LLM providers\n(configured in UI)"]
 ```
 
-This will pull and start the Vane container with the bundled SearxNG search engine. Once running, open your browser and navigate to http://localhost:3000. You can then configure your settings (API keys, models, etc.) directly in the setup screen.
+| Resource | Type | Plan | Purpose |
+|----------|------|------|---------|
+| `vane` | Web (Docker) | Standard | Builds from `./Dockerfile`; runs Vane + SearXNG + Playwright |
+| `vane-data` | Persistent disk (1 GB) | Disk storage | SQLite database, uploads, local config |
 
-**Note**: The image includes both Vane and SearxNG, so no additional setup is required. The `-v` flags create persistent volumes for your data and uploaded files.
+Region defaults to **Oregon** in [`render.yaml`](./render.yaml). Change the `region` field before deploy if you want another region.
 
-#### Using Vane with Your Own SearxNG Instance
+## Quickstart
 
-If you already have SearxNG running, you can use the slim version of Vane:
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=vane)
+
+1. Click **Deploy to Render** and choose the GitHub account that receives the template fork.
+2. Review the Blueprint (`vane` web service + `vane-data` disk) and click **Apply**. No secrets are required at Apply time.
+3. Wait for the first Docker build (~15–25 minutes). SearXNG is cloned and Playwright browsers are installed during the image build.
+4. Open the `*.onrender.com` URL when the service status is **Live** and the health check on `/` returns 200.
+5. Complete Vane's setup screen: add at least one chat model provider and save. Bundled SearXNG is already wired to `http://localhost:8080` inside the container.
+6. Run a test search. Confirm sources appear in the answer panel before you share the URL.
+
+## Configuration
+
+### Required secrets
+
+**None.** Provider API keys are entered in Vane's setup UI after deploy and stored in SQLite on the persistent disk.
+
+| Env var | What it's for | How to get it |
+|---------|---------------|---------------|
+| None | No Blueprint secrets at Apply time | Configure providers in the Vane setup screen after deploy |
+
+### Auto-generated secrets
+
+**None.** This Blueprint does not use `generateValue: true` env vars.
+
+| Env var | Purpose |
+|---------|---------|
+| None | No auto-generated application secrets |
+
+### Wired automatically from other resources
+
+**None.** This is a single-service template with no `fromDatabase` or `fromService` references.
+
+| Env var | Source |
+|---------|--------|
+| None | Single web service + attached disk only |
+
+### Optional tweaks
+
+Defaults are set in [`render.yaml`](./render.yaml) and the Dockerfile. Override in the Render Dashboard or in your fork's Blueprint.
+
+| Env var | Default | What it does |
+|---------|---------|--------------|
+| `NODE_ENV` | `production` | Runs Next.js in production mode |
+| `DATA_DIR` | `/home/vane/data` | SQLite and upload root; must match the disk `mountPath` |
+| `PORT` | `3000` | Port Vane binds inside the container; must match Render's health check target |
+| `SEARXNG_API_URL` | `http://localhost:8080` (Dockerfile) | Internal SearXNG URL for the bundled search engine |
+
+Upstream configuration reference: [Vane installation docs](https://github.com/ItzCrazyKns/Vane/tree/master/docs/installation) and [.env.example](./.env.example).
+
+## Cost breakdown
+
+| Resource | Plan | Monthly cost |
+|----------|------|--------------|
+| `vane` | Web service Standard | $25 |
+| `vane-data` | 1 GB disk ($0.25/GB) | $0.25 |
+| **Total** | | **$25.25** |
+
+See [Render pricing](https://render.com/pricing) for current plan and disk rates. LLM provider usage is billed separately by each vendor.
+
+**Cheaper:** Downgrading to Starter ($7) is not recommended; Playwright and SearXNG often OOM during startup on 512 MB instances.
+
+**Scale up:** Increase the web service plan to **Pro** for more CPU/RAM, or raise `disk.sizeGB` in `render.yaml` if SQLite and uploads outgrow 1 GB. Horizontal scaling is not available with an attached disk.
+
+## Customization
+
+### Pin an upstream release
+
+This template builds from source on every deploy. To pin a release, check out a tag in your fork and push:
 
 ```bash
-docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://your-searxng-url:8080 -v vane-data:/home/vane/data --name vane itzcrazykns1337/vane:slim-latest
+git checkout v1.12.2   # example; use a tag that exists upstream
+git push origin main
 ```
 
-**Important**: Make sure your SearxNG instance has:
+### Switch to the upstream prebuilt image
 
-- JSON format enabled in the settings
-- Wolfram Alpha search engine enabled
+To skip source builds, change the web service in `render.yaml` to `runtime: image`:
 
-Replace `http://your-searxng-url:8080` with your actual SearxNG URL. Then configure your AI provider settings in the setup screen at http://localhost:3000.
+```yaml
+runtime: image
+image:
+  url: docker.io/itzcrazykns1337/vane:latest
+```
 
-#### Advanced Setup (Building from Source)
+Remove `dockerfilePath` and `dockerContext`. First deploy is faster; you lose the ability to patch app code in the fork without changing the image tag.
 
-If you prefer to build from source or need more control:
+### Add a custom domain
 
-1. Ensure Docker is installed and running on your system.
-2. Clone the Vane repository:
+In the Render Dashboard, open **vane** → **Settings** → **Custom Domains** → **Add**. Render provisions TLS after DNS is configured. See [Custom domains](https://render.com/docs/custom-domains).
 
-   ```bash
-   git clone https://github.com/ItzCrazyKns/Vane.git
-   ```
+### Resize the persistent disk
 
-3. After cloning, navigate to the directory containing the project files.
+```yaml
+# render.yaml
+disk:
+  name: vane-data
+  mountPath: /home/vane/data
+  sizeGB: 5
+```
 
-4. Build and run using Docker:
+Disks can grow but not shrink. Pick the smallest size that fits expected uploads and search history.
 
-   ```bash
-   docker build -t vane .
-   docker run -d -p 3000:3000 -v vane-data:/home/vane/data --name vane vane
-   ```
+### Use an external SearXNG instance
 
-5. Access Vane at http://localhost:3000 and configure your settings in the setup screen.
+Build from `Dockerfile.slim`, deploy SearXNG as a [private service](https://render.com/docs/private-services), and set:
 
-**Note**: After the containers are built, you can start Vane directly from Docker without having to open a terminal.
+```yaml
+envVars:
+  - key: SEARXNG_API_URL
+    value: http://<your-searxng-host>:<port>
+```
 
-### Non-Docker Installation
+The external instance must enable JSON responses. Upstream docs recommend enabling the Wolfram Alpha engine.
 
-1. Install SearXNG and allow `JSON` format in the SearXNG settings. Make sure Wolfram Alpha search engine is also enabled.
-2. Clone the repository:
+### Enable preview environments
 
-   ```bash
-   git clone https://github.com/ItzCrazyKns/Vane.git
-   cd Vane
-   ```
+This template sets `previews.generation: off` because gallery deploys are one-shot forks. To test PRs on Render:
 
-3. Install dependencies:
+```yaml
+previews:
+  generation: manual
+```
 
-   ```bash
-   npm i
-   ```
+Preview services with disks follow the same single-instance constraints as production.
 
-4. Build the application:
+## Operations
 
-   ```bash
-   npm run build
-   ```
+### Backups
 
-5. Start the application:
+Render creates automatic disk snapshots for `vane-data` (daily retention per your workspace plan). Restore from the service **Disks** page. Snapshots are full-disk restores: you cannot restore individual files through the Dashboard.
 
-   ```bash
-   npm run start
-   ```
+SQLite lives at `/home/vane/data/data/db.sqlite` when `DATA_DIR=/home/vane/data`.
 
-6. Open your browser and navigate to http://localhost:3000 to complete the setup and configure your settings (API keys, models, SearxNG URL, etc.) in the setup screen.
+### Monitoring
 
-**Note**: Using Docker is recommended as it simplifies the setup process, especially for managing environment variables and dependencies.
+Use the service **Metrics** and **Events** pages. The Blueprint sets `healthCheckPath: /`. A 200 from `/` means nginx/Next.js is responding; it does not prove SearXNG or a specific LLM provider is configured.
 
-See the [installation documentation](https://github.com/ItzCrazyKns/Vane/tree/master/docs/installation) for more information like updating, etc.
+### Scaling
 
-### Troubleshooting
+The attached disk limits the service to **one instance**. Autoscaling and zero-downtime deploys are not available. Scale vertically by changing the instance plan.
 
-#### Local OpenAI-API-Compliant Servers
+### Logs
 
-If Vane tells you that you haven't configured any chat model providers, ensure that:
+Dashboard → **vane** → **Logs**, or with the [Render CLI](https://render.com/docs/cli):
 
-1. Your server is running on `0.0.0.0` (not `127.0.0.1`) and on the same port you put in the API URL.
-2. You have specified the correct model name loaded by your local LLM server.
-3. You have specified the correct API key, or if one is not defined, you have put _something_ in the API key field and not left it empty.
+```bash
+render logs --resources <service-id> --tail
+```
 
-#### Ollama Connection Errors
+Look for `Starting SearXNG...`, `SearXNG started successfully`, and `Starting Vane...` during startup. Build logs show Docker stages for SearXNG pip install and Playwright browser download.
 
-If you're encountering an Ollama connection error, it is likely due to the backend being unable to connect to Ollama's API. To fix this issue you can:
+## Upgrading
 
-1. **Check your Ollama API URL:** Ensure that the API URL is correctly set in the settings menu.
-2. **Update API URL Based on OS:**
+### Pick up upstream releases
 
-   - **Windows:** Use `http://host.docker.internal:11434`
-   - **Mac:** Use `http://host.docker.internal:11434`
-   - **Linux:** Use `http://<private_ip_of_host>:11434`
+1. Check [Vane releases](https://github.com/ItzCrazyKns/Vane/releases) and release notes.
+2. Merge or cherry-pick upstream into your fork (this repo tracks upstream on the default branch).
+3. Push to GitHub. Render auto-deploys if enabled on your fork.
+4. Watch deploy logs. Database migrations run on boot via Next.js instrumentation.
+5. Re-open the setup screen if upstream adds new required configuration.
 
-   Adjust the port number if you're using a different one.
+### Breaking-change migrations
 
-3. **Linux Users - Expose Ollama to Network:**
+Maintain a short log in your fork when you bump major versions:
 
-   - Inside `/etc/systemd/system/ollama.service`, you need to add `Environment="OLLAMA_HOST=0.0.0.0:11434"`. (Change the port number if you are using a different one.) Then reload the systemd manager configuration with `systemctl daemon-reload`, and restart Ollama by `systemctl restart ollama`. For more information see [Ollama docs](https://github.com/ollama/ollama/blob/main/docs/faq.md#setting-environment-variables-on-linux)
+- **v1.12.2 (template baseline):** Full image bundles SearXNG; local state under `/home/vane/data`. Provider keys live in SQLite, not Render env vars.
+- **Future releases:** Read upstream release notes before merging. Confirm `DATA_DIR`, SearXNG ports, and setup-screen flows still match this Blueprint.
 
-   - Ensure that the port (default is 11434) is not blocked by your firewall.
+## Troubleshooting
 
-#### Lemonade Connection Errors
+### Deploy fails during Docker build
 
-If you're encountering a Lemonade connection error, it is likely due to the backend being unable to connect to Lemonade's API. To fix this issue you can:
+The Dockerfile clones SearXNG, installs Python dependencies, and downloads Playwright Chromium. First builds often take 15–25 minutes. If the build times out, retry the deploy or temporarily raise the service plan during the first build. Check build logs for npm, pip, or git clone failures.
 
-1. **Check your Lemonade API URL:** Ensure that the API URL is correctly set in the settings menu.
-2. **Update API URL Based on OS:**
+### Health check fails / service never goes Live
 
-   - **Windows:** Use `http://host.docker.internal:8000`
-   - **Mac:** Use `http://host.docker.internal:8000`
-   - **Linux:** Use `http://<private_ip_of_host>:8000`
+Common causes: OOM on Starter, Vane not listening on `PORT=3000`, or SearXNG still starting. Confirm `plan: standard` in `render.yaml`. Check runtime logs for process exits before the health probe succeeds. Wait up to 60 seconds after deploy for SearXNG's startup loop in `entrypoint.sh`.
 
-   Adjust the port number if you're using a different one.
+### Vane reports no chat model providers configured
 
-3. **Ensure Lemonade Server is Running:**
+Open the setup screen and add at least one provider. For OpenAI-compatible servers, the endpoint must be reachable **from Render**, not from your laptop. `http://localhost:11434` inside the Vane UI points at the container, not your local Ollama process.
 
-   - Make sure your Lemonade server is running and accessible on the configured port (default is 8000).
-   - Verify that Lemonade is configured to accept connections from all interfaces (`0.0.0.0`), not just localhost (`127.0.0.1`).
-   - Ensure that the port (default is 8000) is not blocked by your firewall.
+### Search results are empty or SearXNG errors appear
 
-## Using as a Search Engine
+Confirm logs show SearXNG listening on port 8080. The default `SEARXNG_API_URL` is `http://localhost:8080`. If you switched to `Dockerfile.slim`, verify your external SearXNG URL is reachable from the private network and returns JSON.
 
-If you wish to use Vane as an alternative to traditional search engines like Google or Bing, or if you want to add a shortcut for quick access from your browser's search bar, follow these steps:
+### Data disappears after a deploy
 
-1. Open your browser's settings.
-2. Navigate to the 'Search Engines' section.
-3. Add a new site search with the following URL: `http://localhost:3000/?q=%s`. Replace `localhost` with your IP address or domain name, and `3000` with the port number if Vane is not hosted locally.
-4. Click the add button. Now, you can use Vane directly from your browser's search bar.
+Only files under `/home/vane/data` persist. Confirm the disk is attached and `DATA_DIR=/home/vane/data`. Anything written elsewhere on the container filesystem is ephemeral.
 
-## Using Vane's API
+### Out of memory / "No open ports detected"
 
-Vane also provides an API for developers looking to integrate its powerful search engine into their own applications. You can run searches, use multiple models and get answers to your queries.
+Symptoms include heap OOM errors, repeated restarts, or Render reporting no listening port. Stay on **Standard** or upgrade to **Pro**. Do not downgrade to Starter unless you have verified memory usage in your own fork.
 
-For more details, check out the full documentation [here](https://github.com/ItzCrazyKns/Vane/tree/master/docs/API/SEARCH.md).
+### Where to get more help
 
-## Expose Vane to network
+- **Service logs:** Dashboard → **vane** → **Logs**
+- **Deploy events:** Dashboard → **vane** → **Events**
+- **Template issues:** [render-examples/vane issues](https://github.com/render-examples/vane/issues)
+- **Application bugs:** [ItzCrazyKns/Vane issues](https://github.com/ItzCrazyKns/Vane/issues)
 
-Vane runs on Next.js and handles all API requests. It works right away on the same network and stays accessible even with port forwarding.
+## FAQ
 
-## One-Click Deployment
+### Can I run this on Render's free plan?
 
-[![Deploy to Sealos](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://usw.sealos.io/?openapp=system-template%3FtemplateName%3Dperplexica)
-[![Deploy to RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/?app_id=267)
-[![Run on ClawCloud](https://raw.githubusercontent.com/ClawCloud/Run-Template/refs/heads/main/Run-on-ClawCloud.svg)](https://template.run.claw.cloud/?referralCode=U11MRQ8U9RM4&openapp=system-fastdeploy%3FtemplateName%3Dperplexica)
-[![Deploy on Hostinger](https://assets.hostinger.com/vps/deploy.svg)](https://www.hostinger.com/vps/docker-hosting?compose_url=https://raw.githubusercontent.com/ItzCrazyKns/Vane/refs/heads/master/docker-compose.yaml)
+No. This template requires a persistent disk and a Standard (or larger) web instance for reliable startup. Free web services also cannot attach disks.
 
-## Upcoming Features
+### Where do I put OpenAI, Anthropic, or Groq API keys?
 
-- [ ] Adding more widgets, integrations, search sources
-- [ ] Adding ability to create custom agents (name T.B.D.)
-- [ ] Adding authentication
+In Vane's setup screen after deploy. Keys are stored in SQLite on the disk, not in Render environment variables.
 
-## Support Us
+### Can I use Ollama on my laptop with this deploy?
 
-If you find Vane useful, consider giving us a star on GitHub. This helps more people discover Vane and supports the development of new features. Your support is greatly appreciated.
+Not by default. The Render container cannot reach `localhost` on your machine. Expose Ollama on a reachable HTTPS endpoint or use a cloud LLM provider.
 
-### Donations
+### What happens if I delete the disk?
 
-We also accept donations to help sustain our project. If you would like to contribute, you can use the following options to donate. Thank you for your support!
+You lose persisted SQLite data, uploads, and setup configuration for that service. Restore from a disk snapshot if one exists.
 
-| Ethereum                                              |
-| ----------------------------------------------------- |
-| Address: `0xB025a84b2F269570Eb8D4b05DEdaA41D8525B6DD` |
+### Can I export data from the disk later?
 
-## Contribution
+Yes, manually. Use Render shell/SSH (if enabled on your plan) or an app-level export to copy files from `/home/vane/data`. There is no one-click export in this template.
 
-Vane is built on the idea that AI and large language models should be easy for everyone to use. If you find bugs or have ideas, please share them in via GitHub Issues. For more information on contributing to Vane you can read the [CONTRIBUTING.md](CONTRIBUTING.md) file to learn more about Vane and how you can contribute to it.
+### Can I scale Vane horizontally?
 
-## Help and Support
+No. Render disks attach to a single instance. Scale vertically by changing the instance plan.
 
-If you have any questions or feedback, please feel free to reach out to us. You can create an issue on GitHub or join our Discord server. There, you can connect with other users, share your experiences and reviews, and receive more personalized help. [Click here](https://discord.gg/EFwsmQDgAu) to join the Discord server. To discuss matters outside of regular support, feel free to contact me on Discord at `itzcrazykns`.
+### How is this different from `docker run itzcrazykns1337/vane:latest`?
 
-Thank you for exploring Vane, the AI-powered search engine designed to enhance your search experience. We are constantly working to improve Vane and expand its capabilities. We value your feedback and contributions which help us make Vane even better. Don't forget to check back for updates and new features!
+Same bundled layout (Vane + SearXNG in one container), but Render adds managed HTTPS, deploy hooks from Git, and a persistent disk mounted at `/home/vane/data`. This template builds from source in your fork instead of pulling a prebuilt tag on every deploy.
+
+## Security
+
+- **Encryption in transit:** Render terminates TLS for public `*.onrender.com` URLs and custom domains.
+- **Encryption at rest:** Render encrypts persistent disks at the platform level.
+- **Network exposure:** The Vane UI is public on the web service URL. SearXNG on port 8080 is not exposed through Render's public proxy; only the Vane port is routed.
+- **Secrets:** LLM provider keys live in SQLite on the disk. Restrict Render Dashboard access to teammates who should read service logs or env vars.
+- **Authentication:** Vane does not ship end-user auth in this template. Treat the URL as sensitive or place an identity-aware proxy in front if you need access control.
+- **Vulnerability reports:** Template packaging issues → [render-examples/vane](https://github.com/render-examples/vane/issues). Application vulnerabilities → [upstream Vane](https://github.com/ItzCrazyKns/Vane/issues).
+
+## Caveats and limitations
+
+- **Single instance only** because of the attached disk; no autoscaling or zero-downtime deploys.
+- **Long first build** (~15–25 minutes) when building from source; subsequent deploys reuse cached Docker layers when possible.
+- **Source build on every deploy** unless you switch to `runtime: image` in your fork.
+- **No upstream auth gate** in this template (unlike Basic Auth wrappers). Anyone with the URL can reach the setup screen until upstream adds authentication.
+- **Ephemeral container filesystem** outside `/home/vane/data`; only the disk mount persists.
+- **Regional pinning:** the default region is Oregon; cross-region private networking does not apply to this single-service template.
+
+## Credits and license
+
+- **Upstream:** [ItzCrazyKns/Vane](https://github.com/ItzCrazyKns/Vane) — MIT License
+- **Render template:** [render-examples/vane](https://github.com/render-examples/vane) — MIT (see [LICENSE](./LICENSE))
+- **Template maintainer:** [render-examples](https://github.com/render-examples)
+
+If Vane is useful to you, star the [upstream repository](https://github.com/ItzCrazyKns/Vane).

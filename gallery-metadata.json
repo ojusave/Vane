@@ -1,0 +1,19 @@
+{
+  "name": "Vane",
+  "slug": "vane",
+  "category": "AI / Agents",
+  "pitch": "Self-hosted AI answering engine with cited search, bundled SearXNG, and SQLite on a persistent disk.",
+  "repo": "https://github.com/render-examples/vane",
+  "upstream": "https://github.com/ItzCrazyKns/Vane",
+  "license_template": "MIT",
+  "license_upstream": "MIT",
+  "estimated_monthly_cost_usd": 25.25,
+  "resources": [
+    { "type": "web", "plan": "standard", "notes": "docker-fork; builds from ./Dockerfile" },
+    { "type": "disk", "sizeGB": 1, "notes": "/home/vane/data SQLite + uploads" }
+  ],
+  "required_secrets": [],
+  "generated_secrets": [],
+  "stack": ["docker", "nextjs", "nodejs"],
+  "tags": ["ai", "llm", "search", "self-hosted"]
+}
