@@ -28,7 +28,6 @@ Deploy [Vane](https://github.com/ItzCrazyKns/Vane) on Render as a single Docker 
 - [Security](#security)
 - [Caveats and limitations](#caveats-and-limitations)
 - [Credits and license](#credits-and-license)
-- [Publishing this template](#publishing-this-template)
 
 ## Why deploy Vane on Render
 
