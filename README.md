@@ -12,11 +12,11 @@ Vane is a **privacy-focused AI answering engine** that runs entirely on your own
 
 ## Deploy on Render
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ojusave/Vane&branch=render-template)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=vane)
 
-One-click Blueprint for this fork (`render-template` branch): Docker web service, bundled SearXNG, and a persistent disk for SQLite and uploads. First deploy takes ~15–25 minutes.
+One-click template: Docker web service, bundled SearXNG, and a persistent disk for SQLite and uploads. First deploy takes ~15–25 minutes.
 
-Full template docs (cost, troubleshooting, gallery publish steps): **[docs/deploy-on-render.md](docs/deploy-on-render.md)**
+Full template docs: **[docs/deploy-on-render.md](docs/deploy-on-render.md)**
 
 ![preview](.assets/vane-screenshot.png)
 

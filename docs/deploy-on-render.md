@@ -2,13 +2,13 @@
 
 > Privacy-focused AI answering engine with cited sources, bundled SearXNG, and SQLite-backed settings on a persistent disk.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=vane-render-template)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=vane)
 
-Deploy [Vane](https://github.com/ItzCrazyKns/Vane) on Render as a single Docker web service. The upstream image builds Next.js, Playwright, and SearXNG into one container. Search history, uploaded files, and provider settings persist on a Render disk mounted at `/home/vane/data`.
+Deploy [Vane](https://github.com/ItzCrazyKns/Vane) on Render as a single Docker web service. The template builds from source: Next.js, Playwright, and SearXNG in one container. Search history, uploaded files, and provider settings persist on a Render disk mounted at `/home/vane/data`.
 
 ![Vane search UI](./assets/hero.png)
 
-**Deploy from this fork today:** [Blueprint deploy (render-template branch)](https://render.com/deploy?repo=https://github.com/ojusave/Vane&branch=render-template)
+**Repository:** [render-examples/vane](https://github.com/render-examples/vane)
 
 ---
 
@@ -29,8 +29,6 @@ Deploy [Vane](https://github.com/ItzCrazyKns/Vane) on Render as a single Docker 
 - [Caveats and limitations](#caveats-and-limitations)
 - [Credits and license](#credits-and-license)
 - [Publishing this template](#publishing-this-template)
-
----
 
 ## Why deploy Vane on Render
 
@@ -70,11 +68,12 @@ Region: **Oregon** (change `region` in `render.yaml` before deploy if you prefer
 
 ## Quickstart
 
-1. Click **[Deploy to Render](https://render.com/deploy-template/api/github/start?template_repo=vane-render-template)** (after the template is published under `render-examples`), **or** use the [fork Blueprint URL](https://render.com/deploy?repo=https://github.com/ojusave/Vane&branch=render-template) on the `render-template` branch.
-2. Connect GitHub and confirm the fork/Blueprint. No secrets are required at Apply time.
-3. Wait for the Docker build (~15–25 minutes on first deploy; SearXNG clone + Playwright install are heavy).
-4. Open the `*.onrender.com` URL when status is **Live**.
-5. Complete Vane's in-app setup: add at least one chat model provider and save. SearXNG is pre-wired to `http://localhost:8080` inside the container.
+1. Click **[Deploy to Render](https://render.com/deploy-template/api/github/start?template_repo=vane)**.
+2. Choose the GitHub account that will receive the template fork.
+3. Confirm the Blueprint resources and click **Apply**. No secrets are required at Apply time.
+4. Wait for the Docker build (~15–25 minutes on first deploy; SearXNG clone + Playwright install are heavy).
+5. Open the `*.onrender.com` URL when status is **Live**.
+6. Complete Vane's in-app setup: add at least one chat model provider and save. SearXNG is pre-wired to `http://localhost:8080` inside the container.
 
 ## Configuration
 
@@ -126,7 +125,7 @@ This template builds from source on each deploy. To pin upstream, fork at a spec
 
 ```bash
 git checkout v1.12.2   # example tag
-git push origin render-template
+git push origin main
 ```
 
 ### Use the upstream prebuilt image instead
@@ -227,30 +226,4 @@ Same container layout as `docker run ... itzcrazykns1337/vane:latest`, but with 
 ## Credits and license
 
 - **Vane** by [ItzCrazyKns](https://github.com/ItzCrazyKns/Vane) — MIT License
-- **Render template** — Blueprint and docs on the `render-template` branch
-
-## Publishing this template
-
-Follow the internal [Publishing a template](https://dx-process-and-kb.onrender.com/docs/processes/publishing-a-template) process. Summary:
-
-```bash
-# 1. Create render-examples repo from this branch
-gh repo create render-examples/vane-render-template --public \
-  --source=/path/to/Vane --push --description "Vane AI answering engine on Render"
-
-# 2. Mark as GitHub template repository
-gh api -X PATCH repos/render-examples/vane-render-template -f is_template=true
-
-# 3. Verify
-gh api repos/render-examples/vane-render-template --jq '{url:.html_url, is_template:.is_template}'
-
-# 4. Ensure README Deploy button uses:
-# https://render.com/deploy-template/api/github/start?template_repo=vane-render-template
-
-# 5. Validate Blueprint
-render blueprints validate render.yaml
-
-# 6. Submit gallery metadata to the Render templates team (hero.png, cost, slug)
-```
-
-Before gallery submission, smoke-test the Deploy button end-to-end and confirm status **Live** plus in-app setup works.
+- **Render template** — [render-examples/vane](https://github.com/render-examples/vane)
